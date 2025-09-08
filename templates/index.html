@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RAID</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #131313;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+
+        .top-right-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #1f1f1f;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #4a90e2;
+            color: #121212;
+        }
+
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        h1 {
+            margin-top: 100px;
+        }
+
+        .logout-btn {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-right-buttons">
+        <a href="/library" class="button">Library</a>
+        <a href="/attendance" class="button">Attendance</a>
+        <a href="/chat" class="button">Chat</a>
+        <a href="{{ url_for('profile', username=username) }}" class="button">Go to Profile</a>
+
+        {% if user_type == "ADMIN" %}
+            <a href="/library/lms" class="button">Admin Panel</a>
+        {% endif %}
+
+        <a href="/logout" class="button">Logout</a>
+    </div>
+
+
+    <div class="center-content">
+        <h1>Welcome to RAID, {{ username }}!</h1>
+    </div>
+</body>
+</html>
