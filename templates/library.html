@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RAID Library</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: #eee;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            display: flex;
+            background-color: #222;
+            padding: 10px 20px;
+        }
+        .navbar a {
+            color: #eee;
+            text-decoration: none;
+            padding: 14px 20px;
+            margin-right: 10px;
+            background-color: #333;
+            border-radius: 6px;
+        }
+        .navbar a:hover {
+            background-color: #444;
+        }
+
+        input[type="text"] {
+            margin: 1em 0;
+            padding: 0.5em;
+            width: 100%;
+            max-width: 300px;
+            border: none;
+            border-radius: 4px;
+        }
+        .tab-content {
+            padding: 20px;
+        }
+        .tab-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #333;
+            text-align: left;
+            cursor: pointer;
+        }
+        th {
+            background-color: #222;
+        }
+        tr:hover {
+            background-color: #333;
+        }
+        .hidden {
+            display: none;
+
+        }
+
+        /* Add modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            border-radius: 20px;
+        }
+        .modal-content {
+            background: #222;
+            padding: 20px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            overflow-y: auto;
+            position: relative;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #fff;
+        }
+        #modalDetails p {
+            margin: 10px 0;
+            padding: 8px;
+            background: #333;
+            border-radius: 4px;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            background-color: #222;
+            z-index: 10;
+        }
+
+        .user-profile {
+            margin-left: auto;
+            color: #ccc;
+            padding: 14px 20px;
+            background-color: #333;
+            border-radius: 6px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- ── Book‑detail modal ─────────────────────────────── -->
+    <div id="bookDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle"></h2>
+            <div id="modalDetails"></div>
+            <button id="requestButton"
+                style="margin-top: 20px; background: #5a5; color: #111;
+                       padding: 10px 15px; border: none; border-radius: 6px;
+                       cursor: pointer;">
+            📚 Request this Book
+        </button>
+        </div>
+    </div>
+
+    <!-- ── Navbar ─────────────────────────────────────────── -->
+    <div class="navbar">
+        <a href="/">🏠</a>
+        <a href="javascript:void(0)" onclick="showTab('books-tab')">Books</a>
+        <a href="javascript:void(0)" onclick="showTab('reports-tab')">Survey Reports</a>
+        <a href="javascript:void(0)" onclick="showTab('journals-tab')">Journals</a>
+    </div>
+
+    <!-- ⇧ scroll‑to‑top button -->
+    <button onclick="window.scrollTo({top:0,behavior:'smooth'})"
+            style="position:fixed;bottom:20px;right:20px;background:#444;
+                   color:#eee;border:none;border-radius:5px;padding:10px 15px;
+                   cursor:pointer;">↑ Top</button>
+
+    <div class="tab-content">
+
+        <!-- ───────────── Books Tab ───────────── -->
+        <div id="books-tab">
+            <h2>Library Books</h2>
+            <input type="text" id="bookSearch"
+                   placeholder="Search books..."
+                   onkeyup="filterTable('books-table', this.value)">
+
+            <table id="books-table" data-sort-dir="asc">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('books-table',0)">No.</th>
+                        <th onclick="sortTable('books-table',1)">Book Title</th>
+                        <th onclick="sortTable('books-table',2)">Author</th>
+                        <th onclick="sortTable('books-table',3)">Publish Year</th>
+                        <th onclick="sortTable('books-table',4)">Series</th>
+                        <th onclick="sortTable('books-table',5)">Volume</th>
+                        <th onclick="sortTable('books-table',6)">Genre</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in books %}
+                        {% if book['genre'] in ['Linguistics','Anthropolgy'] %}
+                            <tr onclick="openModal(this)"
+                                data-title="{{ book['book_title'] }}"
+                                data-id="{{ book['id'] }}"
+                                data-author="{{ book['author'] }}"
+                                data-pyear="{{ book['publish_year'] }}"
+                                data-genre="{{ book['genre'] }}"
+                                data-series="{{ book['series'] }}"
+                                data-volume="{{ book['volume'] }}"
+                                data-bookcase="{{ book['bookcase'] }}"
+                                data-shelf="{{ book['bookshelf_no'] }}"
+                                data-availability="{{ book['availability'] }}"
+                                data-name="{{ book['borrower_name'] }}"
+                                data-libcode="{{ book['library_code'] }}"
+                            >
+                                <td>{{ loop.index }}</td>
+                                <td>{{ book['book_title'] }}</td>
+                                <td>{{ book['author'] }}</td>
+                                <td>{{ book['publish_year'] }}</td>
+                                <td>{{ book['series'] }}</td>
+                                <td>{{ book['volume'] }}</td>
+                                <td>{{ book['genre'] }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ─────────── Survey Reports Tab ──────────── -->
+        <div id="reports-tab" class="hidden">
+            <h2>Printed Survey Reports</h2>
+            <input type="text" id="reportSearch"
+                   placeholder="Search reports..."
+                   onkeyup="filterTable('reports-table', this.value)">
+
+            <table id="reports-table" data-sort-dir="asc">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('reports-table',0)">No.</th>
+                        <th onclick="sortTable('reports-table',1)">Book Title</th>
+                        <th onclick="sortTable('reports-table',2)">Author</th>
+                        <th onclick="sortTable('reports-table',3)">Publish Year</th>
+                        <th onclick="sortTable('reports-table',4)">Volume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in books %}
+                        {% if book['genre'] == 'Survey Reports' %}
+                            <tr onclick="openModal(this)"
+                                data-title="{{ book['book_title'] }}"
+                                data-id="{{ book['id'] }}"
+                                data-author="{{ book['author'] }}"
+                                data-pyear="{{ book['publish_year'] }}"
+                                data-genre="{{ book['genre'] }}"
+                                data-series="{{ book['series'] }}"
+                                data-volume="{{ book['volume'] }}"
+                                data-bookcase="{{ book['bookcase'] }}"
+                                data-shelf="{{ book['bookshelf_no'] }}"
+                                data-availability="{{ book['availability'] }}"
+                                data-name="{{ book['borrower_name'] }}"
+                                data-libcode="{{ book['library_code'] }}"
+                            >
+                                <td>{{ loop.index }}</td>
+                                <td>{{ book['book_title'] }}</td>
+                                <td>{{ book['author'] }}</td>
+                                <td>{{ book['publish_year'] }}</td>
+                                <td>{{ book['volume'] }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ─────────── Journals Tab ──────────── -->
+        <div id="journals-tab" class="hidden">
+            <h2>Journals</h2>
+            <input type="text" id="journalSearch"
+                   placeholder="Search journals..."
+                   onkeyup="filterTable('journals-table', this.value)">
+
+            <table id="journals-table" data-sort-dir="asc">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('journals-table',0)">No.</th>
+                        <th onclick="sortTable('journals-table',1)">Book Title</th>
+                        <th onclick="sortTable('journals-table',2)">Author</th>
+                        <th onclick="sortTable('journals-table',3)">Publish Year</th>
+                        <th onclick="sortTable('journals-table',4)">Series</th>
+                        <th onclick="sortTable('journals-table',5)">Volume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in books %}
+                        {% if book['genre'] == 'Journals' %}
+                            <tr onclick="openModal(this)"
+                                data-title="{{ book['book_title'] }}"
+                                data-id="{{ book['id'] }}"
+                                data-author="{{ book['author'] }}"
+                                data-pyear="{{ book['publish_year'] }}"
+                                data-genre="{{ book['genre'] }}"
+                                data-series="{{ book['series'] }}"
+                                data-volume="{{ book['volume'] }}"
+                                data-bookcase="{{ book['bookcase'] }}"
+                                data-shelf="{{ book['bookshelf_no'] }}"
+                                data-availability="{{ book['availability'] }}"
+                                data-name="{{ book['borrower_name'] }}"
+                                data-libcode="{{ book['library_code'] }}"
+                            >
+                                <td>{{ loop.index }}</td>
+                                <td>{{ book['book_title'] }}</td>
+                                <td>{{ book['author'] }}</td>
+                                <td>{{ book['publish_year'] }}</td>
+                                <td>{{ book['series'] }}</td>
+                                <td>{{ book['volume'] }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <!-- ───────────── Scripts ───────────── -->
+    <script>
+        function filterTable(tableId, query) {
+            const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+            rows.forEach(r =>
+                r.style.display = r.innerText.toLowerCase().includes(query.toLowerCase()) ? "" : "none"
+            );
+        }
+
+        function showTab(tabId) {
+            document.getElementById('books-tab').classList.add('hidden');
+            document.getElementById('reports-tab').classList.add('hidden');
+            document.getElementById('journals-tab').classList.add('hidden'); // ← missing before
+            document.getElementById(tabId).classList.remove('hidden');
+        }
+
+
+        function sortTable(tableId, colIndex) {
+            const table = document.getElementById(tableId);
+            const tbody = table.tBodies[0];
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+            const asc  = table.getAttribute("data-sort-dir") !== "asc";
+
+            rows.sort((a,b) => {
+                const aText = a.children[colIndex].innerText.trim();
+                const bText = b.children[colIndex].innerText.trim();
+                return asc
+                     ? aText.localeCompare(bText,undefined,{numeric:true})
+                     : bText.localeCompare(aText,undefined,{numeric:true});
+            });
+
+            rows.forEach(r => tbody.appendChild(r));
+            table.setAttribute("data-sort-dir", asc ? "asc" : "desc");
+        }
+
+        function openModal(row) {
+            const modal   = document.getElementById("bookDetailModal");
+            const details = document.getElementById("modalDetails");
+            const requestBtn = document.getElementById("requestButton");
+            document.getElementById("modalTitle").innerText = row.dataset.title;
+            details.innerHTML = "";
+
+            for (const key in row.dataset) {
+                if (key !== "title") {
+                    const label = key.replace(/_/g," ").replace(/(^|\s)\S/g,m=>m.toUpperCase());
+                    const p = document.createElement("p");
+                    p.innerHTML = `<strong>${label}:</strong> ${row.dataset[key]}`;
+                    details.appendChild(p);
+                }
+            }
+
+        requestBtn.onclick = () => {
+            fetch("/request_book", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    book_id: row.dataset.id
+                })
+            })
+            .then(r => r.text())
+            .then(alert)
+            .catch(e => alert("Failed to send request."));
+        };
+            modal.style.display = "flex";
+            }
+
+
+        function closeModal(){ document.getElementById("bookDetailModal").style.display="none"; }
+
+        window.onload = () => sortTable('reports-table',3);
+
+    </script>
+</body>
+</html>
